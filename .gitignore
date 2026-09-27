@@ -1,0 +1,6 @@
+node_modules/
+.astro
+.vscode
+.codex
+.claude
+CLAUDE.md
