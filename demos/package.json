@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
-    "interactive-code-scroll": "0.1.0-alpha.1"
+    "astro": "7.3.5",
+    "interactive-code-scroll": "0.1.0-alpha.3"
   }
 }

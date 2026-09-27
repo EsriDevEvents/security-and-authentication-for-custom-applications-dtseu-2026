@@ -13,14 +13,22 @@
   <body class="calcite-mode-auto">
     <!-- #region ui -->
     <calcite-shell>
+      
+      <!-- Navigation bar-->
       <calcite-navigation slot="header">
         <calcite-navigation-logo slot="logo" heading="OAuth demo"></calcite-navigation-logo>
+        
+        <!-- Sign-in button-->
         <calcite-button id="sign-in" slot="user">Sign in</calcite-button>
       </calcite-navigation>
+
       <main class="demo-content">
+        
+        <!-- Status section-->
         <section class="status-card" aria-label="Sign-in status">
           <p id="user-status">You are not signed in yet.</p>
         </section>
+
       </main>
     </calcite-shell>
     <!-- #endregion -->

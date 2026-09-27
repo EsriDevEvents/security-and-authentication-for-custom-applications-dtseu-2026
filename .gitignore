@@ -4,3 +4,4 @@ node_modules/
 .codex
 .claude
 CLAUDE.md
+dist/

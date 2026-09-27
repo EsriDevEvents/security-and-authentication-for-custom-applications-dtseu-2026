@@ -1,6 +1,6 @@
 > **Note:** Please follow the [repository conventions](https://github.com/EsriDevEvents/contributor-guides/blob/main/conventions.md#conventions-for-repositories) and [slugify](https://slugify.online/) the title of your repo
 
-# Name of the session
+# Security and authentication for custom applications
 
 [Description of the session]
 

@@ -1,11 +1,16 @@
+<!-- 
+ OAuth popup callback page from 
+ https://github.com/Esri/jsapi-resources/blob/main/oauth/oauth-callback.html 
+-->
 <!doctype html>
-<!-- OAuth popup callback page from Esri/jsapi-resources (Apache-2.0). -->
 <html>
   <head>
     <script>
       // #region handler
       function loadHandler() {
-        if (opener) { // windown.opener returns a reference to the window that opened the window, either with open(), or by navigating a link with a target attribute
+        // // windown.opener returns a reference to the window that opened the window, either with open(), or by navigating a link with a target attribute
+        if (opener) {
+          // check if ArcGIS returned an authorization_code in the url
           if (location.hash) {
             try {
               var esriId = opener.require("esri/kernel").id;
