@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OAuth with ArcGIS Maps SDK for JavaScript</title>
+    <!-- #region cdn -->
+    <script type="module" src="https://js.arcgis.com/5.1/"></script>
+    <!-- #endregion -->
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body class="calcite-mode-auto">
+    <!-- #region ui -->
+    <calcite-shell>
+      <calcite-navigation slot="header">
+        <calcite-navigation-logo slot="logo" heading="OAuth demo"></calcite-navigation-logo>
+        <calcite-button id="sign-in" slot="user">Sign in</calcite-button>
+      </calcite-navigation>
+      <main class="demo-content">
+        <section class="status-card" aria-label="Sign-in status">
+          <p id="user-status">You are not signed in yet.</p>
+        </section>
+      </main>
+    </calcite-shell>
+    <!-- #endregion -->
+  </body>
+</html>

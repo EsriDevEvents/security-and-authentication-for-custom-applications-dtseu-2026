@@ -1,0 +1,17 @@
+{
+  "name": "demos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "interactive-code-scroll dev --tutorial .",
+    "build": "interactive-code-scroll build --tutorial ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "interactive-code-scroll": "0.1.0-alpha.1"
+  }
+}

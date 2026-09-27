@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- OAuth popup callback page from Esri/jsapi-resources (Apache-2.0). -->
+<html>
+  <head>
+    <script>
+      // #region handler
+      function loadHandler() {
+        if (opener) { // windown.opener returns a reference to the window that opened the window, either with open(), or by navigating a link with a target attribute
+          if (location.hash) {
+            try {
+              var esriId = opener.require("esri/kernel").id;
+            } catch (e) {}
+            if (esriId) {
+              esriId.setOAuthResponseHash(location.hash);
+            } else {
+              opener.dispatchEvent(new CustomEvent("arcgis:auth:hash", { detail: location.hash }));
+            }
+          } else if (location.search) {
+            opener.dispatchEvent(new CustomEvent("arcgis:auth:location:search", { detail: location.search }));
+          }
+        }
+        close();
+      }
+      // #endregion
+    </script>
+  </head>
+  <body onload="loadHandler();"></body>
+</html>
