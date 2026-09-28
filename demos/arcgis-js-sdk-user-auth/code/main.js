@@ -1,6 +1,6 @@
 // #region config
 const clientId = "YOUR_CLIENT_ID"; // @var clientId
-const portalUrl = "https://www.arcgis.com"; // @var portalUrl
+const portalUrl = "https://www.arcgis.com"; // default to: https://www.arcgis.com // @var portalUrl
 // #endregion
 
 // #region imports
@@ -19,33 +19,54 @@ esriId.registerOAuthInfos([
     popup: true,
     popupCallbackUrl: "oauth-callback.html",
     authNamespace: "interactive-code-scroll-oauth-demo",
+    // Refresh token duration in minutes. Default: 20160 (2 weeks). Max: 129600 (90 days), unless your organization sets a lower limit.
+    // Access tokens remain short-lived in the authorization-code flow.
+    // expiration: 20160,
   })
 ]);
 // #endregion
 
-// #region sign-in
+// #region auth-state
 const signInButton = document.querySelector("#sign-in");
 const userStatus = document.querySelector("#user-status");
+
+const sharingUrl = `${portalUrl}/sharing`;
 let signedIn = false;
 
+function showSignedIn(credential) {
+  signedIn = true;
+  signInButton.textContent = "Sign out";
+  userStatus.textContent = `Signed in as ${credential.userId}.`;
+}
+
+function showSignedOut() {
+  signedIn = false;
+  signInButton.textContent = "Sign in";
+  userStatus.textContent = "You are not signed in yet.";
+}
+
+try {
+  const credential = await esriId.checkSignInStatus(sharingUrl);
+  showSignedIn(credential);
+} catch {
+  showSignedOut();
+}
+// #endregion
+
+// #region sign-in
 signInButton.addEventListener("click", async () => {
   if (signedIn) {
     esriId.destroyCredentials();
     // Set visible text when the user is NOT signed in
-    signedIn = false;
-    signInButton.textContent = "Sign in";
-    userStatus.textContent = "You are not signed in yet.";
+    showSignedOut();
     return;
   }
 
-  // To-Do: the app should also check if the user is signed-in on startup
-  const credential = await esriId.getCredential(`${portalUrl}/sharing`, {
+  const credential = await esriId.getCredential(sharingUrl, {
     oAuthPopupConfirmation: false,
   });
   
   // Set visible text when the user is signed in
-  signedIn = true;
-  signInButton.textContent = "Sign out";
-  userStatus.textContent = `Signed in as ${credential.userId}.`;
+  showSignedIn(credential);
 });
 // #endregion

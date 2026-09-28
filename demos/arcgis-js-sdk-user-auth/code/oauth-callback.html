@@ -1,5 +1,5 @@
 <!-- 
- OAuth popup callback page from 
+ Original source code:
  https://github.com/Esri/jsapi-resources/blob/main/oauth/oauth-callback.html 
 -->
 <!doctype html>
@@ -8,20 +8,31 @@
     <script>
       // #region handler
       function loadHandler() {
-        // // windown.opener returns a reference to the window that opened the window, either with open(), or by navigating a link with a target attribute
+        // window.opener returns a reference to the app window that opened this popup.
         if (opener) {
-          // check if ArcGIS returned an authorization_code in the url
           if (location.hash) {
+            // Older implicit-flow responses return token values in the URL hash.
             try {
+              // Access the ArcGIS Maps SDK identity manager from the window that opened this popup.
               var esriId = opener.require("esri/kernel").id;
             } catch (e) {}
             if (esriId) {
+              // Pass the OAuth response hash back to the ArcGIS identity manager so it can finish sign-in.
               esriId.setOAuthResponseHash(location.hash);
             } else {
+              // If the identity manager is not available, notify the opener so the app can handle the hash itself.
               opener.dispatchEvent(new CustomEvent("arcgis:auth:hash", { detail: location.hash }));
             }
           } else if (location.search) {
-            opener.dispatchEvent(new CustomEvent("arcgis:auth:location:search", { detail: location.search }));
+            // Authorization-code responses, including PKCE, return code/state in the query string.
+            var searchParams = new URLSearchParams(location.search);
+            var hasAuthorizationCode = searchParams.has("code");
+            var hasOAuthError = searchParams.has("error");
+
+            if (hasAuthorizationCode || hasOAuthError) {
+              // Forward authorization-code or error responses returned in the query string to the opener.
+              opener.dispatchEvent(new CustomEvent("arcgis:auth:location:search", { detail: location.search }));
+            }
           }
         }
         close();
