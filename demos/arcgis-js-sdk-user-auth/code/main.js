@@ -19,9 +19,8 @@ esriId.registerOAuthInfos([
     popup: true,
     popupCallbackUrl: "oauth-callback.html",
     authNamespace: "interactive-code-scroll-oauth-demo",
-    // Refresh token duration in minutes. Default: 20160 (2 weeks). Max: 129600 (90 days), unless your organization sets a lower limit.
-    // Access tokens remain short-lived in the authorization-code flow.
-    // expiration: 20160,
+    // Refresh token duration in mins. Default: 2 weeks. Max: 90 days, unless your org sets a lower limit.
+    // expiration: 20160, // Access tokens remain short-lived
   })
 ]);
 // #endregion

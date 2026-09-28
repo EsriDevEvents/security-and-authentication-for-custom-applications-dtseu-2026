@@ -15,22 +15,23 @@
             try {
               // Access the ArcGIS Maps SDK identity manager from the window that opened this popup.
               var esriId = opener.require("esri/kernel").id;
-            } catch (e) {}
+            } catch (e) { 
+              console.warn("Identity manager is not available in the opener window"); 
+            }
             if (esriId) {
               // Pass the OAuth response hash back to the ArcGIS identity manager so it can finish sign-in.
               esriId.setOAuthResponseHash(location.hash);
             } else {
-              // If the identity manager is not available, notify the opener so the app can handle the hash itself.
+              // Notify the opener so the app can handle the hash itself.
               opener.dispatchEvent(new CustomEvent("arcgis:auth:hash", { detail: location.hash }));
             }
           } else if (location.search) {
             // Authorization-code responses, including PKCE, return code/state in the query string.
             var searchParams = new URLSearchParams(location.search);
-            var hasAuthorizationCode = searchParams.has("code");
-            var hasOAuthError = searchParams.has("error");
 
-            if (hasAuthorizationCode || hasOAuthError) {
+            if (searchParams.has("code") || searchParams.has("error")) {
               // Forward authorization-code or error responses returned in the query string to the opener.
+              // E.g. and error could be produced if the user cancel the authorization
               opener.dispatchEvent(new CustomEvent("arcgis:auth:location:search", { detail: location.search }));
             }
           }
