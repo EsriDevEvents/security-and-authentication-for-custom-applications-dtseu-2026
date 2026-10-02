@@ -1,0 +1,93 @@
+---
+title: Security and authentication for custom applications | Esri European DevTech Summit 2026
+preview: both
+theme: auto
+codeWrap: true
+logo: arcgis-maps-sdk-for-javascript-glyph-32.svg
+---
+
+<Intro>
+
+## API Keys with the ArcGIS Maps SDK for JavaScript
+
+In this demo, we will build a small browser app that shows a map with a search widget using the [ArcGIS Maps SDK for JavaScript](https://developers.arcgis.com/javascript/latest/).
+
+<details>
+<summary>Check prerequisites</summary>
+<p style="margin-top:1rem">You will need an ArcGIS Location Platform, ArcGIS Online, or ArcGIS Enterprise account that can create developer credentials. In ArcGIS Online and ArcGIS Enterprise, that means a user type of Creator or higher.</p>
+</details>
+
+</Intro>
+
+<Step id="load-sdk" file="index.html" region="cdn" preview="collapsed">
+
+## Load the SDK
+
+First, load the ArcGIS Maps SDK for JavaScript. The SDK loads the ArcGIS Map components, so this app does not need a bundler or package install step.
+
+</Step>
+
+<Step id="ui" file="index.html" region="ui" preview="expanded">
+
+## Build the UI
+
+Next, let's add the visible parts of the app:
+
+- A `arcgis-map` component with the topo basemap
+- A `arcgis-zoom` component to allow zoom using buttons
+- A `arcgis-search` component to allow searching addresses and places using the World Geocoder
+
+</Step>
+
+<Step id="config" file="index.html" region="config" preview="collapsed">
+
+## App settings
+
+The app needs one setting:
+
+- **API Key**, which <Hint id="identify-your-app" label="authenticates this application">We will get it after creating the Developer Credential. More on step: <a href="#register-app">Create the Developer Credential</a>.</Hint> For now, we will leave a placeholder.
+
+</Step>
+
+<Step id="register-app" images={["1-create-new-item.png", "2-select-developer-credentials.png", "3-select-api-key.png", "4-select-public-app.png", "5-select-no-item-access-api.png", "6-enable-geocoding.png", "7-expriation-and-referrer.png", "8-item-details.png", "9-item-review.png", "10-copy-api-key.png"]} preview="collapsed">
+
+## Create the Developer Credential
+
+Now that the app is almost there, create the developer credential in [the ArcGIS portal](https://developers.arcgis.com/documentation/glossary/arcgis-portal/):
+
+1. Click **Content** > **My content** > **New item**
+2. Click **Developer credentials**
+3. Select **API Key credentials (_For API Key authentication_)**
+4. Select **Public application**
+5. Select **No item access**
+6. Turn on the **Geocoding** privilege
+7. Set API key expiration date and add the referrer URL for your app
+    - Local development: `http://localhost:<port>/`
+    - Published site: `https://<your-site>/`
+8. Fill the item info.
+9. Review and accept
+10. Copy the **API Key**
+
+</Step>
+
+<Step id="set-client-id" file="index.html" region="config" preview="collapsed">
+
+## Set apiKey
+
+Paste the API Key from the developer credential:
+
+<VarField name="apiKey" label="Set your API Key:" secret persist />
+
+</Step>
+
+<Step id="caution" file="abuse.py" preview="collapsed">
+
+## Caution! 
+
+API keys are easy to abuse, so it is important you only enable privileges you need for your app. Furthermore you should rotate your API Keys every so often to prevent (long term) misuse by others.
+
+While you can limit your effectiveness to referrers, if some one wants to abuse your API Key in, for example, a python script they will still be able to set the correct referrer manually. 
+
+See also the example python script here using the geocoding service with your API Key.
+
+</Step>
