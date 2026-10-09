@@ -1,0 +1,132 @@
+---
+title: Security and authentication for custom applications | Esri European DevTech Summit 2026
+preview: off
+theme: auto
+codeWrap: true
+---
+
+<Intro>
+
+## App Auth using python requests-oauthlib
+
+In this demo, we will build a small script that authenticates an application with OAuth 2.0 using [requests-oauthlib](https://requests-oauthlib.readthedocs.io/en/latest/).
+
+<details>
+<summary>Check prerequisites</summary>
+<p style="margin-top:1rem">You will need an ArcGIS Location Platform, ArcGIS Online, or ArcGIS Enterprise account that can create developer credentials. In ArcGIS Online and ArcGIS Enterprise, that means a user type of Creator or higher.</p>
+</details>
+
+</Intro>
+
+<Step id="load-library" file="app_auth.py" region="library">
+
+## Import library
+
+First, we import two classes:
+- `BackendApplicationClient` describes which type of client we are using: a backend client. will also store the Client ID used
+- `OAuth2Session` to create a session based on the client. Facilitates authentication flows, token refresh and requests using the token we got when authenticating
+These are from requests-oauthlib and oauthlib respectively. The requests-oauthlib package depends on the oauthlib package, so installing requests-oauthlib should be enough to get both.
+
+</Step>
+
+<Step id="config" file="app_auth.py" region="config">
+
+## App settings
+
+The OAuth Application flow needs three app settings:
+
+- **Client ID** & **Client Secret**, which <Hint id="identify-your-app" label="identifies this application.">We will get them after creating the OAuth credential. More on step: <a href="#register-app">Create the Developer Credential</a>.</Hint> For now, we will leave placeholders.
+- **Portal URL**, only needs to be changed when the application has to sign in to an ArcGIS Enterprise portal.
+
+</Step>
+
+<Step id="token-endpoint" file="app_auth.py" region="token-endpoint">
+
+## Token endpoint
+
+The OAuth application will use this endpoint to get a token. This is defined using the base url for the portal appending the standard oauth2 token endpoint for ArcGIS.
+
+</Step>
+
+<Step id="oauth" file="app_auth.py" region="oauth">
+
+## Setup OAuth
+
+This will setup the required parameters for authentication with the token endpoint. The `BackendApplicationClient` will ensure the correct oauth flow will be used and keep track of the Client ID. The `OAuth2Session` will be used to request a token and make requests to other api endpoints using the token. The settings `auto_refresh_url` and `auto_refresh_kwargs` make sure the `OAuth2Session` can request new tokens using the refresh token instead of the Client Secret.
+
+</Step>
+
+<Step id="token" file="app_auth.py" region="token">
+
+## Request a token
+
+After setting up the `OAuth2Session` with the right settings, it is time to request a token using the Client Secret. The ArcGIS REST Api requires the Client ID and Client Secret to be provided as parameters in the post, so we need to set `include_client_id=True` to make sure that happens. The token gets saved automatically in the `token` attribute of our session object.
+
+</Step>
+
+<Step id="request" file="app_auth.py" region="request">
+
+## Make a request
+
+Finally we can use the session to interact with the ArcGIS REST API and/or ArcGIS Services, the request will be authenticated with the token we requested using the `Authorization` header. This will be added to every request made using the session. This example uses the `get()` function but the rest of the standard requests functions like `post()` are also available in the session object.
+
+The request made here is a simple request to the [portals/self](https://developers.arcgis.com/rest/users-groups-and-items/portal-self/) endpoint, which will give us a list of the permissions for this application and some other details.
+
+</Step>
+
+<Step id="register-app" images={["1-create-new-item.png", "2-select-developer-credentials.png", "3-select-oauth2-app-auth.png", "4-select-private-app-privileges.png", "5-select-no-item-access.png", "6-no-extra-privileges.png", "7-no-referrer.png", "8-item-details.png", "9-item-review.png", "10-credentials.png"]}>
+
+## Create the Developer Credential
+
+To generate credentials for your script, create the developer credential in [the ArcGIS portal](https://developers.arcgis.com/documentation/glossary/arcgis-portal/):
+
+1. Click **Content** > **My content** > **New item**
+2. Click **Developer credentials**
+3. Select **OAuth 2.0 credentials (_For app authentication_)**
+4. Select **Private application with selected privileges**
+    - This is generally recommended practice to limit which privileges an application has to what is needed
+5. Select **No item access**
+    - This demo does not require item access, you should change this to only what your application needs
+6. Select any additional privileges
+    - This demo does not require additional privileges, you should enable only what your application needs
+7. Optionally add referrer URLs
+    - This is not needed for this demo, but can be helpfull in cases where the token is passed to a webbrowser
+8. Fill the item info.
+9. Review and accept
+10. Copy the **Client ID** & **Client Secret**
+
+</Step>
+
+<Step id="set-client-id" file="app_auth.py" region="config">
+
+## Set clientId and portalUrl
+
+Paste the Client ID from the developer credential:
+
+<VarField name="client_id" label="Set your Client ID:" secret persist />
+<VarField name="client_secret" label="Set your Client Secret:" secret persist />
+
+<details>
+<summary>Authenticating against ArcGIS Enterprise?</summary>
+
+If you created the developer credential in ArcGIS Enterprise, set the Portal URL:
+
+<VarField name="portal_url" label="Portal URL" placeholder="https://myHostName.yourDomain.com/arcgis" persist />
+
+</details>
+
+</Step>
+
+<Step id="run-script">
+
+# Running the script
+
+After configuring Client ID and Client Secret you should be able to run the script and expect something like the following output.
+```
+> python app_auth.py
+Title: "Tutorial: App Authentication with python requests-oauthlib"
+Has the following privileges:
+    - premium:user:basemaps
+```
+
+</Step>
