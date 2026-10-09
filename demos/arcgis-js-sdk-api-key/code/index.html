@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API Keys with ArcGIS Maps SDK for JavaScript</title>
+    <!-- #region config -->
+    <script>
+      var esriConfig = {
+        apiKey: "YOUR_API_KEY", // @var apiKey
+      };
+    </script>
+    <!-- #endregion -->
+    <!-- #region cdn -->
+    <script type="module" src="https://js.arcgis.com/5.1/"></script>
+    <!-- #endregion -->
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+        }
+    </style>
+  </head>
+  <body class="calcite-mode-auto">
+    <!-- #region ui -->
+    <arcgis-map basemap="topo">
+        <arcgis-zoom slot="top-left"></arcgis-zoom>
+        <arcgis-search slot="top-right"></arcgis-search>
+    </arcgis-map>
+    <!-- #endregion -->
+  </body>
+</html>
