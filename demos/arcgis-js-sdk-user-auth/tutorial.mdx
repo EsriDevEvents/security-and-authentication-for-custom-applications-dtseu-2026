@@ -1,0 +1,252 @@
+---
+title: User Auth with the ArcGIS Maps SDK for JavaScript
+preview: both
+theme: auto
+codeWrap: true
+logo: arcgis-maps-sdk-for-javascript-glyph-32.svg
+# Series index and siblings
+tags: [JavaScript, OAuth, User Authentication, Security]
+level: Intermediate
+duration: 10 min
+---
+
+<Intro>
+
+## About this demo
+
+In this demo, we will build a small browser app that signs a user in with OAuth 2.0 using the [ArcGIS Maps SDK for JavaScript](https://developers.arcgis.com/javascript/latest/).
+
+<details>
+<summary>Check prerequisites</summary>
+<p style="margin-top:1rem">You will need an ArcGIS Location Platform, ArcGIS Online, or ArcGIS Enterprise account that can create developer credentials. In ArcGIS Online and ArcGIS Enterprise, that means a user type of Creator or higher.</p>
+</details>
+
+</Intro>
+
+<Step id="how-oauth-works" embed="https://www.rauljimenez.info/oauth-workflow-arcgis" preview="collapsed">
+
+## How OAuth works
+
+These slides show the OAuth 2.0 flow end to end. Keep them in mind: each piece maps to a later step, such as the Client ID, the redirect URL (`oauth-callback.html`), and the tokens the SDK stores for you.
+
+<details>
+<summary>What is PKCE and why does this app use it?</summary>
+
+The SDK uses the authorization-code flow with PKCE (Proof Key for Code Exchange). Before sign-in, the app generates a random secret (the code verifier) and sends only its hash (the code challenge) to ArcGIS. When the authorization code comes back, the app sends the original verifier to exchange it for tokens.
+
+Browser apps cannot keep a client secret, so PKCE proves that the app redeeming the code is the same one that started the flow. An intercepted authorization code is useless without the verifier.
+
+</details>
+
+</Step>
+
+<Step id="load-sdk" file="index.html" region="cdn" preview="collapsed">
+
+## Load the SDK
+
+First, load the ArcGIS Maps SDK for JavaScript. The SDK also loads the Calcite components used by the header and sign-in button, so this app does not need a bundler or package install step.
+
+</Step>
+
+<Step id="ui" file="index.html" region="ui" preview="expanded">
+
+## Build the UI
+
+Next, let's add the visible parts of the app:
+
+- A Calcite navigation bar
+- One sign-in button
+- A status message
+
+</Step>
+
+<Step id="config" file="main.js" region="config" preview="collapsed">
+
+## App settings
+
+The OAuth flow needs two app settings:
+
+- **Client ID**, which <Hint id="identify-your-app" label="identifies this application">We will get it after creating the OAuth credential. More on step: <a href="#register-app">Create the Developer Credential</a>.</Hint> For now, we will leave a placeholder.
+- **Portal URL**, only needed when users sign in through an ArcGIS Enterprise portal.
+
+</Step>
+
+<Step id="imports" file="main.js" region="imports" preview="collapsed">
+
+## Import authentication modules
+
+- `OAuthInfo` describes how this app should authenticate: which Client ID to use, which portal to use, whether sign-in opens in a popup, and which callback page receives the OAuth response.
+- `IdentityManager` uses that OAuth configuration. It manages the sign-in flow, stores the credential after authentication, and can destroy it when the user signs out.
+
+</Step>
+
+<Step id="oauth" file="main.js" region="oauth" preview="collapsed">
+
+## Register OAuthInfo within IdentityManager
+
+`IdentityManager.registerOAuthInfos()` receives <Hint id="register-oauth-infos" label="an array"><strong>Why does <code>registerOAuthInfos()</code> accept an array?</strong><br/>Because one application can register OAuth settings for more than one portal or authentication context.<br/><br/>This demo only needs one, but the SDK identity system can manage credentials for many secured ArcGIS resources.</Hint> of OAuthInfo objects.
+
+For this demo, the important properties are:
+
+- `appId`: the Client ID from the developer credential.
+- `portalUrl`: the portal where the app is registered.
+- `popup: true`: opens the ArcGIS sign-in screen in a popup.
+- `popupCallbackUrl`: sets the callback page used as the OAuth redirect URI. After sign-in, ArcGIS redirects the popup back to this page with the OAuth response.
+- `authNamespace`: keeps this app's sign-in state separate from other apps on the same domain.
+- `expiration`: sets how long the session should last. With the default authorization-code flow with PKCE, it applies to the refresh token.
+
+<details>
+<summary>How does the popup callback fit into the flow?</summary>
+
+When the user signs in, ArcGIS redirects the popup to the callback URL registered in the developer credential. The callback page passes the OAuth response back to the original app window, and the SDK uses it to finish the sign-in flow.
+
+</details>
+
+</Step>
+
+<Step id="callback" file="oauth-callback.html" region="handler" preview="collapsed">
+
+## Add the callback page
+
+When the user finishes signing in, ArcGIS redirects the popup back to `oauth-callback.html`.
+
+The URL usually looks like this:
+
+`https://<your-domain>/<path>/oauth-callback.html?code=<authorization-code>&state=<state-code>&...`
+
+This page must be hosted at the same URL that you register as the redirect URL in your ArcGIS developer credential.
+
+<details>
+<summary>What does the callback receive?</summary>
+
+The SDK uses the OAuth authorization-code flow with PKCE when the portal supports it, so the callback normally receives `code` and `state` in the query string. The same callback also supports older implicit-flow responses, where ArcGIS returns values in the URL hash instead.
+
+The callback script passes the OAuth response back to the original app window, where the SDK completes the sign-in flow and closes the popup.
+
+</details>
+
+</Step>
+
+<Step id="register-app" images={["1-create-new-item.png", "2-select-developer-credentials.png", "3-select-oauth2-user-authentication.png", "4-set-the-redirect-url.png", "5-add-developer-credential-item-info.png", "5.1-item-title-in-oauth-modal.png", "6-review-and-accept.png", "7-copy-the-clientid.png"]} preview="collapsed">
+
+## Create the Developer Credential
+
+Now that the app points to `oauth-callback.html`, create the developer credential in [the ArcGIS portal](https://developers.arcgis.com/documentation/glossary/arcgis-portal/):
+
+1. Click **Content** > **My content** > **New item**
+2. Click **Developer credentials**
+3. Select **OAuth 2.0 credentials (_For user authentication_)**
+4. Add the redirect URL for your app
+    - Local development: `http://localhost:<port>/preview/oauth-callback.html`
+    - Published site: `https://<your-site>/<base-path>/oauth-callback.html`
+5. Fill the item info. The item's `title` is shown in the OAuth modal.
+6. Review and accept
+7. Copy the **Client ID**
+
+</Step>
+
+<Step id="set-client-id" file="main.js" region="config" preview="collapsed">
+
+## Set clientId and portalUrl
+
+Paste the Client ID from the developer credential:
+
+<VarField name="clientId" label="Set your Client ID:" secret persist />
+
+<details>
+<summary>Authenticating against ArcGIS Enterprise?</summary>
+
+If you created the developer credential in ArcGIS Enterprise, set the Portal URL:
+
+<VarField name="portalUrl" label="Portal URL" placeholder="https://myHostName.yourDomain.com/arcgis" persist />
+
+</details>
+
+</Step>
+
+<Step id="auth-state" file="main.js" region="auth-state" preview="collapsed">
+
+## Check whether the user is signed in
+
+When the app starts, use `IdentityManager.checkSignInStatus()` so the UI reflects an existing session.
+
+The URL ends in `/sharing` because the ArcGIS sharing endpoint is the secured resource that identifies the portal session.
+
+- If the SDK already has a valid credential for that resource, the app changes the button to **Sign out** and shows the username.
+- If not, the rejected promise keeps the app in the signed-out state.
+
+</Step>
+
+<Step id="sign-in" file="main.js" region="sign-in" preview="collapsed">
+
+## Wire Sign in and Sign out
+
+Use `IdentityManager.getCredential()` when the user presses **Sign in**, and `IdentityManager.destroyCredentials()` when the user presses **Sign out**.
+
+When sign-in succeeds, the SDK stores the credential and the app updates the status message. Pressing the button again destroys the stored credential and returns the app to its signed-out state.
+
+<details>
+<summary>Why set oAuthPopupConfirmation to false?</summary>
+
+`oAuthPopupConfirmation: false` skips the SDK confirmation dialog and opens the ArcGIS sign-in popup directly when the user presses **Sign in**.
+
+</details>
+
+</Step>
+
+<Step id="try-app" images={["first-login-returned-tokens.png"]} preview="expanded">
+
+## Try the app
+
+Now you should be able to:
+
+- Sign in and see your username after the popup closes
+- Refresh the browser and keep seeing your username<sup>1</sup>
+- Sign out and stop seeing your username
+
+> If the browser blocks the popup, open the Preview in a new tab and press **Sign in** there.
+
+<details>
+<summary>(1) How long does the user stay signed in?</summary>
+
+With the default authorization-code flow with PKCE, ArcGIS returns a short-lived `access_token` and a longer-lived `refresh_token`. The access token authorizes requests to ArcGIS services; it usually expires quickly. The refresh token lets the SDK ask ArcGIS for a new access token without showing the sign-in popup again.
+
+In practice, the access token often lasts about 30 minutes, as shown by `expires_in: 1800` in the token response. The app does not usually change that value. Short-lived access tokens limit the impact if one is exposed, while the longer-lived refresh token preserves the user session by renewing access tokens behind the scenes.
+
+In this app, the ArcGIS Maps SDK for JavaScript stores and manages those tokens through `IdentityManager`. On page load, `checkSignInStatus()` checks whether a valid saved credential can still be used. If the refresh token has expired, or the user signs out, the user must sign in again.
+
+Because this is a browser-only app, the SDK keeps the token information in browser storage when the user chooses to stay signed in. That is normal for this kind of public client, but it also means the app must be protected like any authenticated single-page app: use HTTPS, prevent XSS, avoid logging tokens, keep third-party scripts under control, and call `destroyCredentials()` on sign out so OAuth tokens are revoked.
+
+For apps that need stricter control over long-lived credentials, use a backend OAuth flow instead. In that architecture, the server stores the refresh token securely and the browser only receives the app session or short-lived tokens it needs.
+
+</details>
+
+</Step>
+
+<Step id="troubleshooting" images={["wrong-app-settings.png"]} preview="collapsed">
+
+## Troubleshooting
+
+The most common error is a mismatch between the app settings and the developer credential. Double-check:
+
+- The developer credential item page:
+    - Client ID matches the value in the app
+    - Redirect URL matches exactly: protocol, hostname, port, base path, and filename
+- The SDK properties use the same Client ID, callback URL, and portal URL
+- The credential was created in the same portal where users are signing in
+
+<details>
+<summary>Quickly grab the Client ID and redirect URL from the popup</summary>
+
+```js
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const redirect_uri = urlParams.get("redirect_uri");
+console.log(`Client ID: ${urlParams.get("client_id")}`);
+console.log(`Redirect URL: ${redirect_uri}`);
+copy(redirect_uri);
+```
+
+</details>
+
+</Step>
