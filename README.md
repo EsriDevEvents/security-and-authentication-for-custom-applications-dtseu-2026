@@ -1,8 +1,6 @@
-> **Note:** Please follow the [repository conventions](https://github.com/EsriDevEvents/contributor-guides/blob/main/conventions.md#conventions-for-repositories) and [slugify](https://slugify.online/) the title of your repo
-
 # Security and authentication for custom applications
 
-[Description of the session]
+Learn about the different security options available for accessing Esri's secured authoritative content, ArcGIS Location Services, spatial analysis, and your hosted content in your applications. Speakers cover API key authentication, user authentication, and app credential authentication using ArcGIS APIs and SDKs.
 
 ## Slides and recording
 
@@ -10,4 +8,4 @@ Most of the slides are made available at [Esri Events > Proceedings](https://www
 
 ## Related sessions
 
-...
+Check the [sessions about security here](https://registration.esri.com/flow/esri/26euroepcdev/deveventportal/page/detailed-agenda?search=&search.capabilities=1696880477422040eiBA)
